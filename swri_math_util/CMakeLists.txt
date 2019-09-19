@@ -25,6 +25,7 @@ include_directories(
   ${rclcpp_INCLUDE_DIRS}
   ${Boost_INCLUDE_DIRS}
 )
+ament_export_include_directories(include)
 
 #[[
 
