@@ -1,25 +1,33 @@
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 3.5)
 project(swri_math_util)
 
-find_package(catkin REQUIRED COMPONENTS
-  roscpp
-)
+# Default to C++14
+if(NOT CMAKE_CXX_STANDARD)
+  set(CMAKE_CXX_STANDARD 14)
+endif()
+
+if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  add_compile_options(-Wall -Wextra -Wpedantic)
+endif()
+
+find_package(ament_cmake REQUIRED)
+find_package(rclcpp REQUIRED)
 
 # The Boost Random library headers and namespaces changed between version
 # 1.46 and 1.47
-find_package(Boost COMPONENTS random) 
+find_package(Boost COMPONENTS random)
 if(${Boost_LIB_VERSION} MATCHES "1_46*")
   add_definitions( -DBOOST_1_46 )
 endif(${Boost_LIB_VERSION} MATCHES "1_46*")
 
-catkin_package(
-  INCLUDE_DIRS include
-  LIBRARIES ${PROJECT_NAME}
-  CATKIN_DEPENDS roscpp
+include_directories(
+  include
+  ${rclcpp_INCLUDE_DIRS}
+  ${Boost_INCLUDE_DIRS}
 )
 
-include_directories(include ${catkin_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS})
-  
+#[[
+
 add_library(${PROJECT_NAME}
   src/math_util.cpp
   src/trig_util.cpp
@@ -29,7 +37,7 @@ target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES} ${Boost_LIBRARIES})
 
 if(CATKIN_ENABLE_TESTING)
   find_package(rostest REQUIRED)
-  
+
   add_rostest_gtest(test_trig_util launch/trig_util.test test/test_trig_util.cpp)
   target_link_libraries(test_trig_util ${PROJECT_NAME})
 
@@ -51,3 +59,12 @@ install(TARGETS ${PROJECT_NAME}
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 )
 
+]]
+
+### Install Header Files ###
+install(
+  DIRECTORY include/
+  DESTINATION include
+)
+
+ament_package()
